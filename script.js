@@ -1,38 +1,40 @@
-document.addEventListener('DOMContentLoaded', function() {
-    var apiKey = 'AIzaSyAPmyxWtbl2vv9nbr4gJiDVpNDdkA0Fgfw';
-    var baseUrl = 'https://www.googleapis.com/books/v1/volumes?q=';
-    var searchQuery = 'javascript';
+var apiKey = 'AIzaSyAPmyxWtbl2vv9nbr4gJiDVpNDdkA0Fgfw'; // same key
+var apiUrl = 'https://www.googleapis.com/books/v1/volumes?q=';
+var searchTerm = 'javascript';
 
-    var request = new XMLHttpRequest();
+var xhr = new XMLHttpRequest();
 
-    request.onreadystatechange = function() {
-        console.log('ReadyState:', request.readyState);
+xhr.onreadystatechange = function() {
+    console.log('Ready State:', xhr.readyState);
+    console.log('Raw Response:', xhr.responseText);
 
-        if (request.readyState === XMLHttpRequest.DONE) {
-            var response = JSON.parse(request.responseText);
-            console.log(response);
+    if (xhr.readyState === XMLHttpRequest.DONE) {
+        var response = JSON.parse(xhr.responseText);
+        console.log('Parsed Response:', response);
 
-            var bookList = document.getElementById('bookList');
+        var bookList = document.getElementById("bookList");
 
-            response.items.forEach(function(book) {
-                var title = book.volumeInfo.title;
-                var link = book.volumeInfo.infoLink;
-                var image = book.volumeInfo.imageLinks?.smallThumbnail || '';
+        for (var i = 0; i < response.items.length; i++) {
+            var title = response.items[i].volumeInfo.title || 'No Title';
+            var link = response.items[i].volumeInfo.infoLink || '#';
+            var image = (response.items[i].volumeInfo.imageLinks) ? response.items[i].volumeInfo.imageLinks.smallThumbnail : '';
 
-                console.log('Title:', title);
-                console.log('Link:', link);
-                console.log('Image:', image);
+            console.log('Title:', title);
+            console.log('Link:', link);
+            console.log('Image:', image);
 
-                var listItem = "<li>" +
-                               "<a href='" + link + "' target='_blank'>" + title + "</a><br>" +
-                               (image ? "<img src='" + image + "' alt='Book cover'>" : '') +
-                               "</li>";
+            var newBook = "<li><a href='" + link + "' target='_blank'>" + title + "</a><br>";
 
-                bookList.innerHTML += listItem;
-            });
+            if (image) {
+                newBook += "<img src='" + image + "' alt='Book Cover'>";
+            }
+
+            newBook += "</li>";
+
+            bookList.innerHTML += newBook;
         }
-    };
+    }
+};
 
-    request.open('GET', baseUrl + searchQuery + '&key=' + apiKey);
-    request.send();
-});
+xhr.open("GET", apiUrl + searchTerm);
+xhr.send();
